@@ -1,11 +1,13 @@
 import sys
 import vtk
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout 
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from custom_3D_object_tracker import CustomTrackballObjectRotation
+
+import resources_rc
 
 from joy_stick import Joystick
 
@@ -136,24 +138,35 @@ class Layout(object):
         self.interactor.Initialize()
 
     def initialize_position_buttons(self):
-        self.button_positions_grid_layout = QtWidgets.QGridLayout()  # create the grid layout for buttons
-        
-        # initialize and style buttons
-        self.buttons = [
-            QtWidgets.QPushButton() for _ in range(9)  
-        ]
+            self.button_positions_grid_layout = QtWidgets.QGridLayout()  # create the grid layout for buttons
+            
+            # Assuming you have a list of resource paths or file paths for your icons
+            icon_paths = [
+                ":images/q2.png",
+                ":images/rectangle_h.png",
+                ":images/q1.png",
+                ":images/rectangle_v.png",
+                ":images/center.png",
+                ":images/rectangle_v.png",
+                ":images/q3.png",
+                ":images/rectangle_h.png",
+                ":images/q4.png",
+            ]
 
-        for button in self.buttons:
-            button.setFixedSize(100, 100)  # set button size to be square
-            button.setStyleSheet("font-size: 12pt; background-color: #333333; color: white;")  # style the button
+            # Initialize and style buttons
+            self.buttons = [QtWidgets.QPushButton() for _ in range(9)]
 
-        # map each button to its position in the grid layout
-        positions = [(row, col) for row in range(3) for col in range(3)]
-        for position, button in zip(positions, self.buttons):
-            self.button_positions_grid_layout.addWidget(button, *position)
-        
-        # Here you can now connect signals for specific buttons if necessary
-        # For example, connecting a clicked signal for button two
-        # self.buttons[1].clicked.connect(self.some_function)
+            for button, icon_path in zip(self.buttons, icon_paths):
+                button.setFixedSize(100, 100)  # set button size to be square
+                button.setStyleSheet("font-size: 12pt; background-color: #333333; color: white;")  # style the button
+                
+                # Set button icon using QPixmap
+                icon = QtGui.QIcon()
+                icon.addPixmap(QtGui.QPixmap(icon_path), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                button.setIcon(icon)
+                button.setIconSize(QtCore.QSize(40, 40))  # Adjust icon size as needed
 
-
+            # Map each button to its position in the grid layout
+            positions = [(row, col) for row in range(3) for col in range(3)]
+            for position, button in zip(positions, self.buttons):
+                self.button_positions_grid_layout.addWidget(button, *position)

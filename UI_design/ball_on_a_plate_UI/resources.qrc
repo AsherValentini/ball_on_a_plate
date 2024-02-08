@@ -1,0 +1,13 @@
+<RCC>
+  <qresource>
+
+  <file>images/q1.png</file>
+  <file>images/q2.png</file>
+  <file>images/q3.png</file>
+  <file>images/q4.png</file>
+  <file>images/center.png</file>
+  <file>images/rectangle_h.png</file>
+  <file>images/rectangle_v.png</file>
+
+  </qresource>
+</RCC>
