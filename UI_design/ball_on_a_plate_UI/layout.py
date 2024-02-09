@@ -26,9 +26,9 @@ CAMERA_FRAME_L = 1240
 #endregion
 
 #region: color pallets
-frame_background_color = "#121212" #normalized to floating point 0.071, 0.071, 0.071
-window_background_color = "#222222"
-window_background_rgb = [0.133, 0.133, 0.133]  # List of RGB values
+frame_background_color = "#121212"             # color for the frame backgrounds (normalized to floating point 0.071, 0.071, 0.071 if needed later)
+window_background_color = "#222222"            # color for the window background     
+window_background_rgb = [0.133, 0.133, 0.133]  # list of RGB values for passing floating points to the vtk renderer 
 
 #endregion
 
@@ -87,15 +87,15 @@ class Layout(object):
         self.frame_automatic_positioning_frame = QtWidgets.QFrame()                                                                                                                               # create the automatic positioning frame 
         self.style_frame(self.frame_automatic_positioning_frame, border_radius=15, background_color=frame_background_color, border=f"1px solid {frame_background_color}", padding=5, margin=2)    # style the automatic positioning frame
         self.frame_automatic_positioning_frame.setFixedSize(CONTROLLER_FRAME_L, CONTROLLER_FRAME_H)                                                                                               # fix the size of the automatic positioning frame
-        self.controllers_v_layout.addWidget(self.frame_automatic_positioning_frame)                                                                                 # stack the automatic positioning frame to on the top most position of the controllers vertical layout
+        self.controllers_v_layout.addWidget(self.frame_automatic_positioning_frame)                                                                                                               # stack the automatic positioning frame to on the top most position of the controllers vertical layout
        
-        self.initialize_position_buttons() # initialize the position buttons and grid layout
+        self.initialize_position_buttons()                                                  # initialize the position buttons and grid layout
         self.frame_automatic_positioning_frame.setLayout(self.button_positions_grid_layout) # assign the grid layout to the automatic positioning frame
         #endregion
         #region : joy stick 
-        self.frame_joy_stick = QtWidgets.QFrame()                                                                                               # create joystick frame
-        self.style_frame(self.frame_joy_stick, border_radius=15, background_color=frame_background_color, border=f"1px solid {frame_background_color}", padding=5, margin=2)  # style the joystick frame
-        self.frame_joy_stick.setFixedSize(CONTROLLER_FRAME_L, CONTROLLER_FRAME_H)                                                               # fix the size of the joystick frame
+        self.frame_joy_stick = QtWidgets.QFrame()                                                                                                                               # create joystick frame
+        self.style_frame(self.frame_joy_stick, border_radius=15, background_color=frame_background_color, border=f"1px solid {frame_background_color}", padding=5, margin=2)    # style the joystick frame
+        self.frame_joy_stick.setFixedSize(CONTROLLER_FRAME_L, CONTROLLER_FRAME_H)                                                                                               # fix the size of the joystick frame
 
         self.joy_stick_layout = QVBoxLayout()                 # create joystick layout
         self.joystick = Joystick(self.central_widget)         # create the joystick widget
@@ -108,8 +108,8 @@ class Layout(object):
 
         #region : camera frame 
         self.frame_camera = QtWidgets.QFrame()
-        self.style_frame(self.frame_camera, border_radius=8, background_color=frame_background_color, border=f"1px solid {frame_background_color}", padding=5, margin=2)  # style the 3D image frame
-        self.frame_camera.setFixedSize(CAMERA_FRAME_L, CAMERA_FRAME_H)                                                                      # fix the size of the 3D image frame
+        self.style_frame(self.frame_camera, border_radius=8, background_color=frame_background_color, border=f"1px solid {frame_background_color}", padding=5, margin=2)    # style the 3D image frame
+        self.frame_camera.setFixedSize(CAMERA_FRAME_L, CAMERA_FRAME_H)                                                                                                      # fix the size of the 3D image frame
 
         self.bottom_region_h_layout.addWidget(self.frame_camera) # stack the camera frame to the bottom region horizontal layout
         #endregion 
