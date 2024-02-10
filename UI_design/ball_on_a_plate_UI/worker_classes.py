@@ -1,18 +1,18 @@
-import sys
+import sys, rpc, serial
 from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QVBoxLayout, QWidget
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import pyqtSignal, QThread
 import io
 
 # Assuming rpc.py is in the same directory and contains the rpc_usb_vcp_master class
-from rpc import rpc_usb_vcp_master
+
 
 class ImageStreamThread(QThread):
     image_received = pyqtSignal(QImage)
 
     def __init__(self, port):
         super().__init__()
-        self.rpc_interface = rpc_usb_vcp_master(port)
+        self.rpc_interface = rpc.rpc_usb_vcp_master(port)
         self.is_running = True
 
     def run(self):
