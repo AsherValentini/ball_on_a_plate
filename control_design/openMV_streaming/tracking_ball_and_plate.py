@@ -19,7 +19,7 @@ min_area = 10  # Minimum area for the ball blob
 max_area = 1000  # Maximum area for the ball blob
 
 # Inclusion zone - Assuming we want to include the entire screen: (0, 0, 320, 240)  # x, y, w, z
-inclusion_zone = (80, 40, 200, 150)  # x, y, w, z
+inclusion_zone = (80, 40, 150, 150)  # x, y, (w-front view), (z-camera stand side)
 
 while(True):
     clock.tick()
