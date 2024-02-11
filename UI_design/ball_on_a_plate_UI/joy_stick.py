@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QGridLayout
-from PyQt5.QtGui import QPainter, QBrush, QColor
+from PyQt5.QtGui import QPainter, QBrush, QColor, QPen, QPolygonF
 from PyQt5.QtCore import QPointF, QRectF, QLineF, Qt
+
 from enum import Enum
 
 class Direction(Enum):
@@ -20,10 +21,20 @@ class Joystick(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)  # Enable anti-aliasing
-        painter.setBrush(QBrush(QColor(0, 0, 0), Qt.SolidPattern))
+
+        # Set up the pen for drawing outlines
+        outlinePen = QPen(QColor(255, 255, 255))  # White color
+        outlinePen.setWidth(2)  # Set the width of the outline
+        painter.setPen(outlinePen)
+
+        # Set the brush to transparent (No fill)
+        painter.setBrush(Qt.NoBrush)
+
+        # Draw the outer boundary ellipse with a white outline
         bounds = QRectF(-self.__maxDistance, -self.__maxDistance, self.__maxDistance * 2, self.__maxDistance * 2).translated(self._center())
         painter.drawEllipse(bounds)
-        painter.setBrush(QBrush(QColor(255, 255, 255), Qt.SolidPattern))
+
+        # Draw the center ellipse with a white outline
         painter.drawEllipse(self._centerEllipse())
 
     def _centerEllipse(self):
