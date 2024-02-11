@@ -68,7 +68,6 @@ def jpeg_image_stream(data):
     interface.schedule_callback(jpeg_image_stream_cb)
     return bytes()
 
-
 # Register call backs.
 
 interface.register_callback(jpeg_image_stream)

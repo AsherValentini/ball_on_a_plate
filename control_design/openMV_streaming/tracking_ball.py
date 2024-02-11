@@ -10,10 +10,13 @@ sensor.set_auto_whitebal(False)  # must be turned off for color tracking
 clock = time.clock()
 
 # Color Thresholds
-white_threshold = (94, 100, -128, 127, -128, 60)  # Adjusted thresholds for white
+white_threshold_temp = (95, 100, -128, 127, -128, 60)  # Adjusted thresholds for white (daytime)
+white_threshold = (95, 36, -128, 127, -128, 60)  # Adjusted thresholds for white (dark room with lights) 
 
 min_area = 10  # Minimum area for the ball blob
 max_area = 1000  # Maximum area for the ball blob
+
+inclusion_zone = (80, 40, 200, 150)  # x, y, w, z
 
 # Reference point (dead center of the frame)
 frame_center_x = 320 // 2
@@ -22,9 +25,9 @@ frame_center_y = 240 // 2
 while(True):
     clock.tick()
     img = sensor.snapshot()
-
     # Find the white ball
-    balls = img.find_blobs([white_threshold], pixels_threshold=min_area, area_threshold=min_area, merge=True)
+    balls = img.find_blobs([white_threshold], pixels_threshold=min_area, area_threshold=min_area, merge=True,roi=inclusion_zone)
+    
     valid_balls = [b for b in balls if min_area <= b.area() <= max_area]
 
     if valid_balls:
