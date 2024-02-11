@@ -19,7 +19,7 @@ class ImageStreamThread(QThread):
         # Call the method on OpenMV cam to start streaming images. Adjust as needed.
         while self.is_running:
             sys.stdout.flush()
-            self.rpc_interface.call("jpeg_image_stream", "sensor.RGB565,sensor.QQVGA")
+            self.rpc_interface.call("jpeg_image_stream", "sensor.RGB565,sensor.QVGA")
 
             def callback(data):
                 if not self.is_running:
@@ -36,6 +36,7 @@ class ImageStreamThread(QThread):
 
     def stop(self):
         self.is_running = False
+        self.rpc_interface.close()  # Ensure the serial connection is properly closed
         self.terminate()
 
 class MainWindow(QMainWindow):
@@ -63,6 +64,7 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event):
         self.image_stream_thread.stop()
+        self.image_stream_thread.wait()
         super().closeEvent(event)
 
 if __name__ == "__main__":

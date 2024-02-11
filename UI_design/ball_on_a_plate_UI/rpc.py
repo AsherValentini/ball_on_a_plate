@@ -234,9 +234,26 @@ class rpc_usb_vcp_master(rpc_master):
             l -= data_len
         return buff
 
-    def __init__(self, port): # private
-        self.__ser = serial.Serial(port, baudrate=115200, timeout=0.01)
+    #def __init__(self, port): # private
+        #self.__ser = serial.Serial(port, baudrate=115200, timeout=0.01)
+        #rpc_master.__init__(self)
+
+    def __init__(self, port):
+        # Initialize the parent rpc_master class
         rpc_master.__init__(self)
+        
+        # Attempt to open the serial port, with additional handling
+        try:
+            # Check if a serial connection already exists and close it if it does
+            if hasattr(self, '__ser') and self.__ser.isOpen():
+                self.__ser.close()
+            
+            # Open a new serial connection
+            self.__ser = serial.Serial(port, baudrate=115200, timeout=0.01)
+        
+        except serial.SerialException as e:
+            # Handle error if the serial port cannot be opened
+            print(f"Failed to open serial port {port}: {e}")
 
     def _flush(self): # protected
         self.__ser.reset_input_buffer()
@@ -253,3 +270,7 @@ class rpc_usb_vcp_master(rpc_master):
     def _stream_get_bytes(self, buff, timeout_ms): # protected
         if int(self.__ser.timeout) != 1: self.__ser.timeout = 1 # Changing this causes control transfers.
         return self.__get_bytes(buff)
+    
+    def close(self): # asher valentini - must close the serial port if working in an app
+        if self.__ser.isOpen():
+            self.__ser.close()
