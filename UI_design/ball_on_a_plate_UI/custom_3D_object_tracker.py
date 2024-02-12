@@ -1,3 +1,7 @@
+#===================================================================================
+#============custom class for moving the 3D object around its own axis==============
+#===================================================================================
+
 import vtk
 
 class CustomTrackballObjectRotation(vtk.vtkInteractorStyleTrackballCamera):

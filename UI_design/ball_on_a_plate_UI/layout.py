@@ -2,7 +2,7 @@ import sys
 import vtk
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout 
+from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from custom_3D_object_tracker import CustomTrackballObjectRotation
@@ -111,7 +111,16 @@ class Layout(object):
         self.style_frame(self.frame_camera, border_radius=8, background_color=frame_background_color, border=f"1px solid {frame_background_color}", padding=5, margin=2)    # style the 3D image frame
         self.frame_camera.setFixedSize(CAMERA_FRAME_L, CAMERA_FRAME_H)                                                                                                      # fix the size of the 3D image frame
 
-        self.bottom_region_h_layout.addWidget(self.frame_camera) # stack the camera frame to the bottom region horizontal layout
+        self.openMV_image_label = QLabel("Waiting for image...")   # print holder message while the first jpeg comes
+        self.openMV_image_label.setFixedSize(480, 360)
+        #self.openMV_image_label.setScaledContents(False)          # ensure that the label gives 320x240 pixeled image has enough space or True and the jpeg will enlarge to the entire space the layout takes up
+        self.openMV_image_label.setScaledContents(True)          # ensure that the label gives 320x240 pixeled image has enough space or True and the jpeg will enlarge to the entire space the layout takes up
+
+        self.openMV_image_layout = QHBoxLayout()                    # create the openMV image layout upon which to stack the label that will hold the jpeg image
+        self.openMV_image_layout.addWidget(self.openMV_image_label) # stack the openMV image label to the the openMV layout
+        self.frame_camera.setLayout(self.openMV_image_layout)       # stack the openMV image layout to the camera frame
+
+        self.bottom_region_h_layout.addWidget(self.frame_camera)    # stack the camera frame to the bottom region horizontal layout
         #endregion 
 
     def style_frame(self, widget, border_radius=20, background_color=frame_background_color, border="2px solid #555555", padding=10, margin=5):
@@ -218,3 +227,4 @@ class Layout(object):
                 background-color: #0796FF;
             }
         """)
+    

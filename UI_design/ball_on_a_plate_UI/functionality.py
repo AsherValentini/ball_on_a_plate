@@ -5,8 +5,9 @@
 import os
 from PyQt5 import QtWidgets, QtCore, QtGui 
 from PyQt5.QtCore import Qt, QObject, QThread, pyqtSignal, pyqtSlot, QMutex, QTimer
-from PyQt5.QtWidgets import QProgressBar, QMessageBox
+from PyQt5.QtGui import QImage, QPixmap #imports for displaying jpeg streams 
 from layout import Layout
+from worker_classes import ImageStreamThread
 #==============================================================================================================
 #=======globals================================================================================================
 #==============================================================================================================
@@ -23,6 +24,14 @@ class Functionality(QtWidgets.QMainWindow):
         #region: 
         self.layout = Layout()      # create in instance of the apps layout 
         self.layout.setupUI(self)   # show that instance 
+        #endregion 
+        #=======================================================================================================
+        #=======initialize serial devices=======================================================================
+        #=======================================================================================================
+        #region: 
+        self.openMV_image_stream_thread = ImageStreamThread(port="COM12")                   #create openMV serial object-create openMV thread 
+        self.openMV_image_stream_thread.image_received.connect(self.update_openMV_image)    #connect the emitted signal from openMV thread to update_openMV_image method to update the gui thread with the new image recieved over the comport 
+        self.openMV_image_stream_thread.start()                                             #start the thread which starts the run method in the worker class
         #endregion 
         #=======================================================================================================
         #=======initialize the starting states for each flag in the program=====================================
@@ -126,3 +135,7 @@ class Functionality(QtWidgets.QMainWindow):
             else: 
                 self.layout.reset_button_style(button)
                 self.flag_button_8 = False       
+
+    def update_openMV_image(self, image): 
+        pixmap = QPixmap.fromImage(image)
+        self.layout.openMV_image_label.setPixmap(pixmap)
