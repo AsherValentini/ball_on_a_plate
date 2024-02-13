@@ -34,7 +34,10 @@ def pid_update(error, dt, pid_coefficients, angle_range, axis, previous_error, i
     proportional = Kp * error
     integral += error * dt
     derivative = (error - previous_error) / dt
-    
+
+    # Account for integral windup -implement derivative kick handling when new reference input functionality on the GUI side is scripted
+    integral = max(min(integral, 150), -150)
+
     # PID output before clipping
     pid_output = proportional + (Ki * integral) + (Kd * derivative)
     

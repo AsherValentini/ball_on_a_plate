@@ -1,3 +1,7 @@
+#===================================================================================
+#=================custom widget design for a joystick===============================
+#===================================================================================
+
 from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QGridLayout
 from PyQt5.QtGui import QPainter, QBrush, QColor, QPen, QPolygonF
 from PyQt5.QtCore import QPointF, QRectF, QLineF, Qt

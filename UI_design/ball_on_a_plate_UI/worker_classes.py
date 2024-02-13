@@ -4,7 +4,6 @@ from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import pyqtSignal, QThread
 import io
 
-# Assuming rpc.py is in the same directory and contains the rpc_usb_vcp_master class
 
 
 class ImageStreamThread(QThread):
@@ -39,6 +38,10 @@ class ImageStreamThread(QThread):
         self.rpc_interface.close()  # Ensure the serial connection is properly closed
         self.terminate()
 
+
+#===================================================================================
+#================run this script to test openMV streaming===========================
+#===================================================================================
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
