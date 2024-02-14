@@ -26,7 +26,7 @@ class Functionality(QtWidgets.QMainWindow):
         self.layout.setupUI(self)   # show that instance 
         #endregion 
         #=======================================================================================================
-        #=======initialize serial devices=======================================================================
+        #=======initialize serial devices, workers, and threads=================================================
         #=======================================================================================================
         #region: 
         self.openMV_image_stream_thread = ImageStreamThread(port="COM12")                   #create openMV serial object-create openMV thread 
