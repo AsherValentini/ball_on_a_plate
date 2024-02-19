@@ -10,8 +10,12 @@
 //==================================================================================================================================
 // Settings for stp and dir pin assignments (adjust if needed)
 //==================================================================================================================================
-const int MOTOR_STEP_PIN = 32;
-const int MOTOR_DIRECTION_PIN = 33;
+const int MOTOR_STEP_PIN = 16;
+const int MOTOR_DIRECTION_PIN = 17;
+//==================================================================================================================================
+// Settings for en pin assignments (adjust if needed)
+//==================================================================================================================================
+const int MOTOR_EN_PIN = 14; //must go low to activate (not needed if the driver EN is hardwired to ground and not a uC IO)
 //==================================================================================================================================
 // Settings for creating the stepper motor object
 //==================================================================================================================================
@@ -28,8 +32,28 @@ void setup()
   
   Serial.begin(115200);
 
-  // connect and configure the stepper motor to its IO pins
+  //only needed if EN pin is wired to uC IO and not straighty to GND in hardware
+  pinMode(MOTOR_EN_PIN, OUTPUT);
+
+  // connect and configure the stepper motor to its uC IO pins
   stepper.connectToPins(MOTOR_STEP_PIN, MOTOR_DIRECTION_PIN);
+
+  delay(50); //give the previous set ups time before perfomring digital write commands 
+
+  digitalWrite(MOTOR_EN_PIN, LOW); //enable the motor 
+
+  //
+  // set the speed and acceleration rates for the stepper motor if you are not planning on changing it in the loop 
+  //
+  stepper.setSpeedInStepsPerSecond(100);
+  stepper.setAccelerationInStepsPerSecondPerSecond(100);
+  delay(50);  
+
+  //
+  // Rotate the motor in the forward direction one revolution (1600 steps). 
+  // This function call will not return until the motion is complete.
+  //
+  //stepper.moveRelativeInSteps(0.1*revolution);
 }
 
 
@@ -40,8 +64,8 @@ void loop()
   //
   // set the speed and acceleration rates for the stepper motor
   //
-  stepper.setSpeedInStepsPerSecond(100);
-  stepper.setAccelerationInStepsPerSecondPerSecond(100);
+  //stepper.setSpeedInStepsPerSecond(100);
+  //stepper.setAccelerationInStepsPerSecondPerSecond(100);
 
   //
   // Rotate the motor in the forward direction one revolution (1600 steps). 
@@ -58,15 +82,15 @@ void loop()
   //
   // rotate backward 1 rotation, then wait 1 second
   //
-  stepper.moveRelativeInSteps(-revolution);
-  delay(1000);
+  //stepper.moveRelativeInSteps(-revolution);
+  //delay(1000);
 
   //
   // This time speedup the motor, turning 10 revolutions.  Note if you
   // tell a stepper motor to go faster than it can, it just stops.
   //
-  stepper.setSpeedInStepsPerSecond(800);
-  stepper.setAccelerationInStepsPerSecondPerSecond(800);
-  stepper.moveRelativeInSteps(revolution * 10);
-  delay(2000);
+  //stepper.setSpeedInStepsPerSecond(800);
+  //stepper.setAccelerationInStepsPerSecondPerSecond(800);
+  //stepper.moveRelativeInSteps(revolution * 10);
+  //delay(2000);
 }
