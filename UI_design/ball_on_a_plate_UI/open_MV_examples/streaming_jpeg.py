@@ -1,10 +1,9 @@
+
 import sys, rpc, serial
 from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QVBoxLayout, QWidget
 from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtCore import pyqtSignal, QThread
+from PyQt5.QtCore import pyqtSignal, QThread, QObject, pyqtSlot, QMutex
 import io
-
-
 
 class ImageStreamThread(QThread):
     image_received = pyqtSignal(QImage)
@@ -38,10 +37,7 @@ class ImageStreamThread(QThread):
         self.rpc_interface.close()  # Ensure the serial connection is properly closed
         self.terminate()
 
-
-#===================================================================================
-#================run this script to test openMV streaming===========================
-#===================================================================================
+        
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()

@@ -4,7 +4,7 @@
 
 from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QGridLayout
 from PyQt5.QtGui import QPainter, QBrush, QColor, QPen, QPolygonF
-from PyQt5.QtCore import QPointF, QRectF, QLineF, Qt
+from PyQt5.QtCore import QPointF, QRectF, QLineF, Qt, pyqtSignal
 
 from enum import Enum
 
@@ -15,6 +15,8 @@ class Direction(Enum):
     Down = 3
 
 class Joystick(QWidget):
+    signal_joystick_direction = pyqtSignal(float, float)
+
     def __init__(self, parent=None):
         super(Joystick, self).__init__(parent)
         self.setMinimumSize(200, 200)
@@ -49,7 +51,6 @@ class Joystick(QWidget):
     def _center(self):
         return QPointF(self.width()/2, self.height()/2)
 
-
     def _boundJoystick(self, point):
         limitLine = QLineF(self._center(), point)
         if (limitLine.length() > self.__maxDistance):
@@ -58,20 +59,12 @@ class Joystick(QWidget):
 
     def joystickDirection(self):
         if not self.grabCenter:
-            return 0
+            self.signal_joystick_direction.emit(0, 0)
         normVector = QLineF(self._center(), self.movingOffset)
         currentDistance = normVector.length()
         angle = normVector.angle()
-
         distance = min(currentDistance / self.__maxDistance, 1.0)
-        if 45 <= angle < 135:
-            return (Direction.Up, distance)
-        elif 135 <= angle < 225:
-            return (Direction.Left, distance)
-        elif 225 <= angle < 315:
-            return (Direction.Down, distance)
-        return (Direction.Right, distance)
-
+        self.signal_joystick_direction.emit(angle, distance)
 
     def mousePressEvent(self, ev):
         self.grabCenter = self._centerEllipse().contains(ev.pos())
@@ -84,9 +77,8 @@ class Joystick(QWidget):
 
     def mouseMoveEvent(self, event):
         if self.grabCenter:
-            print("Moving")
             self.movingOffset = self._boundJoystick(event.pos())
             self.update()
-        print(self.joystickDirection())
+        self.joystickDirection()
 
 
