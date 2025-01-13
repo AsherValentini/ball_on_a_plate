@@ -10,12 +10,16 @@
 //==================================================================================================================================
 // Settings for stp and dir pin assignments (adjust if needed)
 //==================================================================================================================================
-const int MOTOR_STEP_PIN = 16;
-const int MOTOR_DIRECTION_PIN = 17;
+//const int MOTOR_STEP_PIN = 32;
+//const int MOTOR_DIRECTION_PIN = 33;
+const int MOTOR_STEP_PIN = 15;
+const int MOTOR_DIRECTION_PIN = 2;
 //==================================================================================================================================
 // Settings for en pin assignments (adjust if needed)
 //==================================================================================================================================
-const int MOTOR_EN_PIN = 14; //must go low to activate (not needed if the driver EN is hardwired to ground and not a uC IO)
+//const int MOTOR_EN_PIN = 23; //must go low to activate (not needed if the driver EN is hardwired to ground and not a uC IO
+const int MOTOR_EN_PIN = 19; //must go low to activate (not needed if the driver EN is hardwired to ground and not a uC IO)
+
 //==================================================================================================================================
 // Settings for creating the stepper motor object
 //==================================================================================================================================
@@ -82,8 +86,8 @@ void loop()
   //
   // rotate backward 1 rotation, then wait 1 second
   //
-  //stepper.moveRelativeInSteps(-revolution);
-  //delay(1000);
+  stepper.moveRelativeInSteps(-revolution);
+  delay(1000);
 
   //
   // This time speedup the motor, turning 10 revolutions.  Note if you

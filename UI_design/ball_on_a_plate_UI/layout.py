@@ -1,7 +1,11 @@
 import sys
+import cv2
+import imutils
+import numpy as np
 import vtk
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QObject
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
@@ -21,8 +25,12 @@ THREE_D_OBJECT_FRAME_L = 650
 CONTROLLER_FRAME_H = 450
 CONTROLLER_FRAME_L = 600
 
-CAMERA_FRAME_H = 800
-CAMERA_FRAME_L = 1240
+#CAMERA_FRAME_H = 800 #tablet dimensions 
+#CAMERA_FRAME_L = 1240 #tablet dimensions 
+
+CAMERA_FRAME_H = 900
+CAMERA_FRAME_L = 500
+
 #endregion
 
 #region: color pallets
@@ -32,7 +40,9 @@ window_background_rgb = [0.133, 0.133, 0.133]  # list of RGB values for passing 
 
 #endregion
 
-class Layout(object): 
+class Layout(QObject): 
+    signal_update_yellow_range = pyqtSignal(list, list)
+
     def setupUI(self, MainWindow): 
         #region : main window
         MainWindow.resize(WINDOW_L, WINDOW_H)                                       # size the main window to the size of the tablet screen (will not be doing media queries in this UI design)
@@ -71,16 +81,16 @@ class Layout(object):
         self.vtk_widget.GetRenderWindow().GetInteractor().SetInteractorStyle(interactor_style)  # set this custom interactor style as the interactor style for the 3D object
 
         
-        obj_file_location = r"C:\Users\localuser\OBJ_in_PYQT5\render\ball_on_a_plate_render.obj"    # define the local repository file location for the 3D objects obj file
-        mtl_file_location = r"C:\Users\localuser\OBJ_in_PYQT5\render\ball_on_a_plate_render.mtl"    # define the local repository file locatoin for the 3D objects mtl file 
+        obj_file_location = r"C:\Users\Ash\OBJ_in_PYQT5\render\ball_on_a_plate_render.obj"    # define the local repository file location for the 3D objects obj file
+        mtl_file_location = r"C:\Users\Ash\OBJ_in_PYQT5\render\ball_on_a_plate_render.mtl"    # define the local repository file locatoin for the 3D objects mtl file 
 
-        texture_path = r"C:\Users\localuser\OBJ_in_PYQT5\render"
+        texture_path = r"C:\Users\Ash\OBJ_in_PYQT5\render"
         self.load_obj_with_materials(obj_file_location, mtl_file_location, texture_path)
 
         self.top_region_h_layout.addWidget(self.frame_3D_object) # stack the 3D image frame on the left most side of the top region horizontal layout
         #endregion
 
-        #region : controllers 
+        #region : user input control buttons and joystick
         self.controllers_v_layout = QVBoxLayout()                       # create the controllers vertical layout upon which to stack the joystick frame and the automatic positioning frame
         self.top_region_h_layout.addLayout(self.controllers_v_layout)   # stack the controllers vertical layout on the right most side of the top region horizontal layout
         #region : automatic posititioning frame
@@ -98,7 +108,7 @@ class Layout(object):
         self.frame_joy_stick.setFixedSize(CONTROLLER_FRAME_L, CONTROLLER_FRAME_H)                                                                                               # fix the size of the joystick frame
 
         self.joy_stick_layout = QVBoxLayout()                 # create joystick layout
-        self.joystick = Joystick(self.central_widget)         # create the joystick widget
+        self.joystick = Joystick()         # create the joystick widget
         self.joy_stick_layout.addWidget(self.joystick)        # add the joystick widget to the joystick layout
         self.frame_joy_stick.setLayout(self.joy_stick_layout) # attach joystick layout to the joystick frame
         
@@ -111,16 +121,30 @@ class Layout(object):
         self.style_frame(self.frame_camera, border_radius=8, background_color=frame_background_color, border=f"1px solid {frame_background_color}", padding=5, margin=2)    # style the 3D image frame
         self.frame_camera.setFixedSize(CAMERA_FRAME_L, CAMERA_FRAME_H)                                                                                                      # fix the size of the 3D image frame
 
-        self.openMV_image_label = QLabel("Waiting for image...")   # print holder message while the first jpeg comes
-        self.openMV_image_label.setFixedSize(480, 360)
-        #self.openMV_image_label.setScaledContents(False)          # ensure that the label gives 320x240 pixeled image has enough space or True and the jpeg will enlarge to the entire space the layout takes up
-        self.openMV_image_label.setScaledContents(True)          # ensure that the label gives 320x240 pixeled image has enough space or True and the jpeg will enlarge to the entire space the layout takes up
+        #self.openMV_image_label = QLabel("Waiting for image...")    # print holder message while the first jpeg comes
+        #self.openMV_image_label.setFixedSize(480, 360)
+        #self.openMV_image_label.setScaledContents(True)             # ensure that the label gives 320x240 pixeled image has enough space or True and the jpeg will enlarge to the entire space the layout takes up
+        #self.openMV_image_layout = QHBoxLayout()                    # create the openMV image layout upon which to stack the label that will hold the jpeg image
+        #self.openMV_image_layout.addWidget(self.openMV_image_label) # stack the openMV image label to the the openMV layout
+        #self.frame_camera.setLayout(self.openMV_image_layout)       # stack the openMV image layout to the camera frame
+        
+        self.openCV_image_layout = QVBoxLayout()
+        self.frame_camera.setLayout(self.openCV_image_layout)
+        self.openCV_image_label = QLabel("Waiting for image...")
+        self.openCV_image_label.setFixedSize(480, 360)
+        self.openCV_image_label.setScaledContents(True)          # ensure that the label gives 320x240 pixeled image has enough space or True and the jpeg will enlarge to the entire space the layout takes up
+        self.openCV_image_layout.addWidget(self.openCV_image_label)
 
-        self.openMV_image_layout = QHBoxLayout()                    # create the openMV image layout upon which to stack the label that will hold the jpeg image
-        self.openMV_image_layout.addWidget(self.openMV_image_label) # stack the openMV image label to the the openMV layout
-        self.frame_camera.setLayout(self.openMV_image_layout)       # stack the openMV image layout to the camera frame
+        self.add_slider(self.openCV_image_layout, 'Lower Hue', 180, 5, self.update_hsv_threshold)
+        self.add_slider(self.openCV_image_layout, 'Upper Hue', 180, 45, self.update_hsv_threshold)
+        self.add_slider(self.openCV_image_layout, 'Lower Saturation', 255, 70, self.update_hsv_threshold)
+        self.add_slider(self.openCV_image_layout, 'Upper Saturation', 255, 255, self.update_hsv_threshold)
+        self.add_slider(self.openCV_image_layout, 'Lower Value', 255, 70, self.update_hsv_threshold)
+        self.add_slider(self.openCV_image_layout, 'Upper Value', 255, 255, self.update_hsv_threshold)
 
-        self.bottom_region_h_layout.addWidget(self.frame_camera)    # stack the camera frame to the bottom region horizontal layout
+
+        self.top_region_h_layout.addWidget(self.frame_camera)       # use this layout for pc display
+        #self.bottom_region_h_layout.addWidget(self.frame_camera)    # use this layout for tablet stack the camera frame to the bottom region horizontal layout
         #endregion 
 
     def style_frame(self, widget, border_radius=20, background_color=frame_background_color, border="2px solid #555555", padding=10, margin=5):
@@ -227,4 +251,58 @@ class Layout(object):
                 background-color: #0796FF;
             }
         """)
-    
+
+    def add_slider(self, layout, label_text, max_value, initial_value, callback):
+        # Create the label and set the text color to white
+        label = QtWidgets.QLabel(f'{label_text}: {initial_value}')
+        label.setStyleSheet("color: white;")  # Set label text color to white
+
+        # Create the slider and customize its appearance
+        slider = QtWidgets.QSlider(Qt.Horizontal)
+        slider.setMaximum(max_value)
+        slider.setValue(initial_value)
+        
+        # Set the QSS for the slider to make it white
+        slider.setStyleSheet("""
+            QSlider::groove:horizontal {
+                border: 1px solid #999999;
+                height: 8px;
+                background: white;
+                margin: 2px 0;
+            }
+            QSlider::handle:horizontal {
+                background: white;
+                border: 1px solid #5c5c5c;
+                width: 18px;
+                margin: -2px 0;
+                border-radius: 3px;
+            }
+        """)
+
+        # Connect the slider value change to update the label and call the callback
+        slider.valueChanged.connect(lambda value, lbl=label, lt=label_text: (
+            lbl.setText(f'{lt}: {value}'), callback()))
+
+        # Add the label and slider to the layout
+        layout.addWidget(label)
+        layout.addWidget(slider)
+
+        # Store the slider as an attribute
+        setattr(self, f'slider_{label_text.replace(" ", "_").lower()}', slider)
+
+    def update_hsv_threshold(self):
+        lh = self.slider_lower_hue.value()
+        ls = self.slider_lower_saturation.value()
+        lv = self.slider_lower_value.value()
+        uh = self.slider_upper_hue.value()
+        us = self.slider_upper_saturation.value()
+        uv = self.slider_upper_value.value()
+
+        lower_yellow = [lh, ls, lv]
+        upper_yellow = [uh, us, uv]
+
+        self.signal_update_yellow_range.emit(lower_yellow, upper_yellow)
+
+
+
+
