@@ -8,7 +8,7 @@ class MyThread(QThread):
     frame_signal = Signal(QImage)
 
     def run(self):
-        self.cap = cv2.VideoCapture(1)
+        self.cap = cv2.VideoCapture(0)
         while self.cap.isOpened():
             ret, frame = self.cap.read()
             if ret:

@@ -103,7 +103,7 @@ class OpenCVImageStreamThread(QThread):
         self.upper_yellow = np.array([45, 255, 255], np.uint8)
 
     def run(self):
-        self.cap = cv2.VideoCapture(1)  # Adjust camera index appropriately
+        self.cap = cv2.VideoCapture(0)  # Adjust camera index appropriately
         while self.cap.isOpened():
             #QThread.msleep(self.interval)
             ret, frame = self.cap.read()
